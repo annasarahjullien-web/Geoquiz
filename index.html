@@ -1,0 +1,1836 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GéoQuiz – Pétrologie</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #14110B;
+  --surface: #1C1812;
+  --surface2: #26211A;
+  --surface3: #312C22;
+  --gold: #C9A84C;
+  --gold-light: #E0C06A;
+  --gold-dim: #7A6428;
+  --cream: #EDE5D0;
+  --cream-dim: #9A907C;
+  --correct: #3D7A52;
+  --correct-bg: #1A2E22;
+  --wrong: #9C3A3A;
+  --wrong-bg: #2E1818;
+  --lava: #C86040;
+  --slate: #4A7FA0;
+  --amethyst: #8A6AAE;
+  --forest: #4A7A5A;
+  --sand: #A8824A;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Crimson Text', Georgia, serif;
+  background: var(--bg);
+  color: var(--cream);
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+
+h1, h2, h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* ─── SCREENS ─── */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ─── HOME ─── */
+#home {
+  align-items: center;
+  padding: 2rem 1rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+#home::before {
+  content: '';
+  position: fixed;
+  top: -40%;
+  left: -20%;
+  width: 80vw;
+  height: 80vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201,168,76,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.home-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+  animation: fadeDown 0.7s ease;
+}
+
+.home-header .badge {
+  display: inline-block;
+  background: var(--gold-dim);
+  color: var(--gold-light);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.9rem;
+  border-radius: 20px;
+  margin-bottom: 1rem;
+}
+
+.home-header h1 {
+  font-size: clamp(2.2rem, 6vw, 3.5rem);
+  color: var(--gold-light);
+  line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+
+.home-header p {
+  color: var(--cream-dim);
+  font-size: 1.1rem;
+  font-style: italic;
+}
+
+.home-stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+  animation: fadeUp 0.7s ease 0.1s both;
+}
+
+.stat-pill {
+  background: var(--surface2);
+  border: 1px solid var(--surface3);
+  padding: 0.5rem 1.2rem;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  color: var(--cream-dim);
+}
+
+.stat-pill strong { color: var(--gold); }
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  max-width: 900px;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.7s ease 0.2s both;
+}
+
+.cat-card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: 12px;
+  padding: 1.4rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.cat-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.cat-card:hover { transform: translateY(-3px); border-color: var(--gold-dim); }
+.cat-card:hover::after { opacity: 1; }
+
+.cat-icon {
+  font-size: 2rem;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.cat-info { flex: 1; }
+.cat-info h3 { font-family: 'Playfair Display', serif; font-size: 1.05rem; margin-bottom: 0.2rem; }
+.cat-info p { font-size: 0.85rem; color: var(--cream-dim); }
+.cat-arrow { color: var(--cream-dim); font-size: 1.2rem; transition: transform 0.2s; }
+.cat-card:hover .cat-arrow { transform: translateX(4px); }
+
+.all-btn {
+  width: 100%;
+  max-width: 900px;
+  background: linear-gradient(135deg, var(--gold-dim), #5A4218);
+  border: 1px solid var(--gold);
+  border-radius: 12px;
+  padding: 1.2rem 2rem;
+  cursor: pointer;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--gold-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  transition: all 0.25s;
+  animation: fadeUp 0.7s ease 0.3s both;
+}
+
+.all-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(201,168,76,0.15); }
+.all-btn span { font-size: 1.3rem; }
+
+/* ─── QUIZ SCREEN ─── */
+#quiz {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  width: 100%;
+}
+
+.quiz-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.back-btn {
+  background: var(--surface2);
+  border: 1px solid var(--surface3);
+  color: var(--cream-dim);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'Crimson Text', serif;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.back-btn:hover { color: var(--cream); border-color: var(--cream-dim); }
+
+.progress-container { flex: 1; }
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--cream-dim);
+  margin-bottom: 0.4rem;
+}
+
+.progress-bar {
+  height: 5px;
+  background: var(--surface3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.score-badge {
+  background: var(--surface2);
+  border: 1px solid var(--surface3);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--gold);
+  font-family: 'Playfair Display', serif;
+  flex-shrink: 0;
+}
+
+/* Question card */
+.question-card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: 16px;
+  padding: 1.8rem;
+  margin-bottom: 1rem;
+  animation: slideIn 0.3s ease;
+}
+
+.question-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.q-type-tag {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.7rem;
+  border-radius: 20px;
+  background: var(--surface3);
+  color: var(--cream-dim);
+}
+
+.q-num { font-size: 0.82rem; color: var(--cream-dim); }
+
+.question-image {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 1.2rem;
+  display: block;
+  background: var(--surface2);
+}
+
+.question-image.hidden { display: none; }
+
+.question-text {
+  font-size: clamp(1.05rem, 2.5vw, 1.2rem);
+  line-height: 1.5;
+  color: var(--cream);
+}
+
+/* Options */
+.options-grid {
+  display: grid;
+  gap: 0.7rem;
+  margin-bottom: 1rem;
+}
+
+.option-btn {
+  background: var(--surface2);
+  border: 1.5px solid var(--surface3);
+  border-radius: 10px;
+  padding: 0.9rem 1.2rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Crimson Text', serif;
+  font-size: 1rem;
+  color: var(--cream);
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  line-height: 1.4;
+}
+
+.option-btn:hover:not(:disabled) {
+  background: var(--surface3);
+  border-color: var(--gold-dim);
+  transform: translateX(3px);
+}
+
+.option-letter {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  flex-shrink: 0;
+  color: var(--cream-dim);
+  transition: all 0.2s;
+}
+
+.option-btn.correct {
+  background: var(--correct-bg);
+  border-color: var(--correct);
+  color: #8FD4A8;
+}
+
+.option-btn.correct .option-letter {
+  background: var(--correct);
+  color: white;
+}
+
+.option-btn.wrong {
+  background: var(--wrong-bg);
+  border-color: var(--wrong);
+  color: #E08080;
+}
+
+.option-btn.wrong .option-letter {
+  background: var(--wrong);
+  color: white;
+}
+
+.option-btn.missed {
+  border-color: var(--correct);
+  opacity: 0.7;
+}
+
+.option-btn:disabled { cursor: default; }
+
+/* Feedback */
+.feedback-box {
+  background: var(--surface2);
+  border: 1px solid var(--surface3);
+  border-radius: 12px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1rem;
+  animation: fadeUp 0.3s ease;
+  display: none;
+}
+
+.feedback-box.show { display: block; }
+
+.feedback-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feedback-title.success { color: #7FCF9F; }
+.feedback-title.fail { color: #E08080; }
+
+.feedback-text {
+  font-size: 0.95rem;
+  color: var(--cream-dim);
+  line-height: 1.6;
+}
+
+.feedback-text strong { color: var(--cream); }
+
+/* Next button */
+.next-btn {
+  width: 100%;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+  padding: 1rem;
+  border-radius: 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: none;
+}
+
+.next-btn.show { display: block; }
+.next-btn:hover { background: #6A4A20; transform: translateY(-1px); }
+
+/* ─── RESULTS ─── */
+#results {
+  align-items: center;
+  padding: 2rem 1rem 3rem;
+  text-align: center;
+}
+
+.results-card {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  max-width: 560px;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  animation: fadeDown 0.5s ease;
+}
+
+.results-emoji { font-size: 4rem; margin-bottom: 1rem; }
+
+.results-card h2 {
+  font-size: 1.8rem;
+  color: var(--gold-light);
+  margin-bottom: 0.5rem;
+}
+
+.score-display {
+  font-size: 3.5rem;
+  font-family: 'Playfair Display', serif;
+  color: var(--gold);
+  line-height: 1;
+  margin: 1rem 0;
+}
+
+.score-label { font-size: 0.9rem; color: var(--cream-dim); margin-bottom: 1.5rem; }
+
+.score-bar {
+  height: 10px;
+  background: var(--surface3);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--gold-dim), var(--gold));
+  transition: width 1s ease 0.3s;
+}
+
+.results-breakdown {
+  max-width: 560px;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  animation: fadeUp 0.5s ease 0.2s both;
+}
+
+.breakdown-title {
+  font-family: 'Playfair Display', serif;
+  color: var(--cream-dim);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: left;
+  margin-bottom: 0.8rem;
+}
+
+.breakdown-item {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  border-radius: 10px;
+  padding: 0.8rem 1.2rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.breakdown-icon { font-size: 1.3rem; }
+
+.breakdown-info { flex: 1; text-align: left; }
+.breakdown-info .name { font-size: 0.9rem; }
+.breakdown-info .detail { font-size: 0.78rem; color: var(--cream-dim); }
+
+.breakdown-pct {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--gold);
+}
+
+.replay-btns {
+  display: flex;
+  gap: 1rem;
+  max-width: 560px;
+  width: 100%;
+  animation: fadeUp 0.5s ease 0.3s both;
+  flex-wrap: wrap;
+}
+
+.replay-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 0.9rem 1.5rem;
+  border-radius: 10px;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.replay-btn.primary {
+  background: var(--gold-dim);
+  border: 1px solid var(--gold);
+  color: var(--gold-light);
+}
+
+.replay-btn.secondary {
+  background: var(--surface);
+  border: 1px solid var(--surface3);
+  color: var(--cream-dim);
+}
+
+.replay-btn:hover { transform: translateY(-2px); }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(15px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+/* Decorative geology lines */
+.geo-line {
+  position: fixed;
+  pointer-events: none;
+  opacity: 0.04;
+}
+
+.geo-line-1 {
+  top: 15%;
+  left: -5%;
+  width: 110%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: rotate(-2deg);
+}
+
+.geo-line-2 {
+  top: 45%;
+  left: -5%;
+  width: 110%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: rotate(1.5deg);
+}
+
+.geo-line-3 {
+  top: 75%;
+  left: -5%;
+  width: 110%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: rotate(-1deg);
+}
+
+/* True/False special */
+.tf-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+
+.tf-btn {
+  padding: 1.4rem;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.tf-btn .tf-label { font-size: 1.5rem; display: block; margin-bottom: 0.3rem; }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .categories-grid { grid-template-columns: 1fr; }
+  .tf-grid { grid-template-columns: 1fr 1fr; }
+  .home-stats { gap: 0.8rem; }
+  .question-card { padding: 1.3rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Decorative geology layers -->
+<div class="geo-line geo-line-1"></div>
+<div class="geo-line geo-line-2"></div>
+<div class="geo-line geo-line-3"></div>
+
+<!-- ═══════════════ HOME SCREEN ═══════════════ -->
+<div id="home" class="screen active">
+  <div class="home-header">
+    <div class="badge">🪨 Pétrologie · Révision</div>
+    <h1>GéoQuiz</h1>
+    <p>Maîtrise les roches en 4 jours</p>
+  </div>
+
+  <div class="home-stats">
+    <div class="stat-pill"><strong>72</strong> questions</div>
+    <div class="stat-pill"><strong>6</strong> thèmes</div>
+    <div class="stat-pill"><strong>Images</strong> incluses</div>
+  </div>
+
+  <div class="categories-grid">
+    <div class="cat-card" onclick="startQuiz('cycle')" style="border-left: 3px solid #C9A84C">
+      <div class="cat-icon" style="background:#2A2412">🔄</div>
+      <div class="cat-info">
+        <h3>Cycle des Roches</h3>
+        <p>10 questions · Classification & processus</p>
+      </div>
+      <div class="cat-arrow">›</div>
+    </div>
+
+    <div class="cat-card" onclick="startQuiz('magmatique')" style="border-left: 3px solid #C86040">
+      <div class="cat-icon" style="background:#2A1812">🌋</div>
+      <div class="cat-info">
+        <h3>Roches Magmatiques</h3>
+        <p>15 questions · Textures, minéraux, images</p>
+      </div>
+      <div class="cat-arrow">›</div>
+    </div>
+
+    <div class="cat-card" onclick="startQuiz('metamorphique')" style="border-left: 3px solid #4A7FA0">
+      <div class="cat-icon" style="background:#12202A">💎</div>
+      <div class="cat-info">
+        <h3>Roches Métamorphiques</h3>
+        <p>12 questions · Faciès, degrés, images</p>
+      </div>
+      <div class="cat-arrow">›</div>
+    </div>
+
+    <div class="cat-card" onclick="startQuiz('sedimentaire')" style="border-left: 3px solid #4A7A5A">
+      <div class="cat-icon" style="background:#121A14">🏔️</div>
+      <div class="cat-info">
+        <h3>Roches Sédimentaires</h3>
+        <p>15 questions · Formation, classification</p>
+      </div>
+      <div class="cat-arrow">›</div>
+    </div>
+
+    <div class="cat-card" onclick="startQuiz('couches')" style="border-left: 3px solid #8A6AAE">
+      <div class="cat-icon" style="background:#1E1826">🌍</div>
+      <div class="cat-info">
+        <h3>Couches Terrestres</h3>
+        <p>8 questions · Structure interne</p>
+      </div>
+      <div class="cat-arrow">›</div>
+    </div>
+
+    <div class="cat-card" onclick="startQuiz('mineraux')" style="border-left: 3px solid #4A8A7A">
+      <div class="cat-icon" style="background:#121E1A">🔬</div>
+      <div class="cat-info">
+        <h3>Minéraux & Analyse</h3>
+        <p>12 questions · Microscope, identification</p>
+      </div>
+      <div class="cat-arrow">›</div>
+    </div>
+  </div>
+
+  <button class="all-btn" onclick="startQuiz('all')">
+    <span>✨</span> Révision Complète — Tout en une fois (72 questions)
+  </button>
+</div>
+
+<!-- ═══════════════ QUIZ SCREEN ═══════════════ -->
+<div id="quiz" class="screen">
+
+  <div class="quiz-header">
+    <button class="back-btn" onclick="goHome()">← Retour</button>
+    <div class="progress-container">
+      <div class="progress-info">
+        <span id="progress-label">Question 1/10</span>
+        <span id="cat-label">Cycle des Roches</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="score-badge" id="score-badge">✓ 0</div>
+  </div>
+
+  <div class="question-card">
+    <div class="question-meta">
+      <span class="q-type-tag" id="q-type-tag">QCM</span>
+      <span class="q-num" id="q-num">1</span>
+    </div>
+    <img id="q-image" class="question-image hidden" alt="Roche à identifier" onerror="this.classList.add('hidden')">
+    <div class="question-text" id="question-text">Chargement…</div>
+  </div>
+
+  <div class="options-grid" id="options-grid"></div>
+
+  <div class="feedback-box" id="feedback-box">
+    <div class="feedback-title" id="feedback-title">✓ Bonne réponse !</div>
+    <div class="feedback-text" id="feedback-text"></div>
+  </div>
+
+  <button class="next-btn" id="next-btn" onclick="nextQuestion()">Continuer →</button>
+</div>
+
+<!-- ═══════════════ RESULTS SCREEN ═══════════════ -->
+<div id="results" class="screen">
+  <div class="results-card">
+    <div class="results-emoji" id="results-emoji">🏆</div>
+    <h2 id="results-title">Excellent !</h2>
+    <div class="score-display" id="results-score">0/0</div>
+    <div class="score-label" id="results-pct">0% de bonnes réponses</div>
+    <div class="score-bar">
+      <div class="score-bar-fill" id="score-bar-fill" style="width:0%"></div>
+    </div>
+    <p style="color:var(--cream-dim); font-size:0.9rem; font-style:italic" id="results-msg"></p>
+  </div>
+
+  <div class="results-breakdown">
+    <div class="breakdown-title">Résumé par catégorie</div>
+    <div id="breakdown-list"></div>
+  </div>
+
+  <div class="replay-btns">
+    <button class="replay-btn primary" onclick="replayQuiz()">↺ Rejouer</button>
+    <button class="replay-btn secondary" onclick="goHome()">⌂ Accueil</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  QUESTION DATA
+// ══════════════════════════════════════════════════════
+
+const CATEGORIES = {
+  cycle: { name: 'Cycle des Roches', icon: '🔄', color: '#C9A84C' },
+  magmatique: { name: 'Roches Magmatiques', icon: '🌋', color: '#C86040' },
+  metamorphique: { name: 'Roches Métamorphiques', icon: '💎', color: '#4A7FA0' },
+  sedimentaire: { name: 'Roches Sédimentaires', icon: '🏔️', color: '#4A7A5A' },
+  couches: { name: 'Couches Terrestres', icon: '🌍', color: '#8A6AAE' },
+  mineraux: { name: 'Minéraux & Analyse', icon: '🔬', color: '#4A8A7A' },
+};
+
+const QUESTIONS = {
+
+// ─── 1. CYCLE DES ROCHES ──────────────────────────────────────────
+cycle: [
+  {
+    type: 'mcq',
+    q: 'Quels sont les 3 grands types de roches ?',
+    options: [
+      'Sédimentaires, Magmatiques, Métamorphiques',
+      'Silicatées, Carbonatées, Phosphatées',
+      'Intrusive, Extrusive, Détritique',
+      'Cristallines, Amorphes, Vitreuses',
+    ],
+    answer: 0,
+    explain: 'Il existe <strong>3 types</strong> : les roches sédimentaires (surface), magmatiques (refroidissement du magma) et métamorphiques (transformation P/T à l\'état solide).',
+  },
+  {
+    type: 'mcq',
+    q: 'Qu\'appelle-t-on des roches "exogènes" ?',
+    options: [
+      'Les roches sédimentaires, formées en surface',
+      'Les roches du manteau terrestre',
+      'Les roches volcaniques uniquement',
+      'Les roches riches en silice',
+    ],
+    answer: 0,
+    explain: 'Les <strong>roches sédimentaires</strong> sont dites exogènes car elles se forment en surface par accumulation, sédimentation et diagenèse de sédiments.',
+  },
+  {
+    type: 'mcq',
+    q: 'Quelle est la gamme de température d\'un magma ?',
+    options: ['550 à 1500 °C', '100 à 800 °C', '200 à 600 °C', '1500 à 3000 °C'],
+    answer: 0,
+    explain: 'Le magma est un <strong>liquide silicaté de haute température (550 à 1500 °C)</strong> issu de la fusion partielle du manteau et/ou de la croûte terrestre.',
+  },
+  {
+    type: 'tf',
+    q: 'Le métamorphisme implique une fusion complète de la roche.',
+    answer: 1,
+    explain: '<strong>FAUX.</strong> Le métamorphisme est une transformation <strong>à l\'état solide</strong>. La fusion partielle (au-delà) s\'appelle l\'anatexie.',
+  },
+  {
+    type: 'mcq',
+    q: 'Qu\'est-ce que l\'anatexie ?',
+    options: [
+      'La fusion partielle d\'une roche métamorphique',
+      'La transformation chimique des argiles en calcaire',
+      'Le refroidissement lent du magma en profondeur',
+      'L\'érosion mécanique des reliefs',
+    ],
+    answer: 0,
+    explain: 'L\'<strong>anatexie</strong> est le début de la fusion partielle d\'une roche métamorphique, formant des magmatites. Si le magma remonte et cristallise, il peut donner du granite.',
+  },
+  {
+    type: 'mcq',
+    q: 'La diagenèse se produit dans quelles conditions ?',
+    options: [
+      'Faible pression et faible température (T < 200°C)',
+      'Haute pression et haute température (> 600°C)',
+      'Fusion partielle avec pression très forte',
+      'Surface terrestre sans enfouissement',
+    ],
+    answer: 0,
+    explain: 'La <strong>diagenèse</strong> agit à faible P et T (jusqu\'à ~200°C). Elle transforme les sédiments meubles en roches cohérentes par compaction, cimentation et déshydratation.',
+  },
+  {
+    type: 'mcq',
+    q: 'Quelle roche se forme par refroidissement LENT du magma EN PROFONDEUR ?',
+    options: [
+      'Roche plutonique (intrusive)',
+      'Roche volcanique (extrusive)',
+      'Roche métamorphique',
+      'Roche sédimentaire',
+    ],
+    answer: 0,
+    explain: 'Le refroidissement <strong>lent en profondeur</strong> → <strong>cristallisation</strong> → roches plutoniques (intrusives) à texture <strong>grenue</strong> (ex. granite, gabbro).',
+  },
+  {
+    type: 'mcq',
+    q: 'Les migmatites sont le résultat de…',
+    options: [
+      'L\'anatexie (fusion partielle d\'une roche métamorphique)',
+      'L\'érosion d\'un glacier sur du granite',
+      'La diagenèse de sédiments carbonatés',
+      'La recristallisation sans fusion',
+    ],
+    answer: 0,
+    explain: 'Les <strong>migmatites</strong> résultent de l\'anatexie : les minéraux clairs (quartz, feldspaths) fondent partiellement, formant un magma granitique, tandis qu\'une partie reste solide.',
+  },
+  {
+    type: 'mcq',
+    q: 'Dans le cycle des roches, qu\'est-ce qui peut transformer une roche magmatique en roche sédimentaire ?',
+    options: [
+      'Érosion → transport → sédimentation → diagenèse',
+      'Augmentation de P et T',
+      'Refroidissement rapide en surface',
+      'Fusion partielle du manteau',
+    ],
+    answer: 0,
+    explain: 'Une roche magmatique exposée en surface subit l\'altération et l\'érosion, puis le transport et la sédimentation, et enfin la <strong>diagenèse</strong> pour donner une roche sédimentaire.',
+  },
+  {
+    type: 'mcq',
+    q: 'Quel processus transforme une roche métamorphique en roche magmatique ?',
+    options: [
+      'La fusion (anatexie puis remontée du magma)',
+      'La compaction et la cimentation',
+      'L\'érosion et le transport',
+      'L\'augmentation de la pression seule',
+    ],
+    answer: 0,
+    explain: 'Si les conditions de T sont très élevées (>650-700°C), la roche métamorphique entre en <strong>anatexie</strong>. Le magma formé peut remonter et cristalliser en roche magmatique.',
+  },
+],
+
+// ─── 2. ROCHES MAGMATIQUES ──────────────────────────────────────────
+magmatique: [
+  {
+    type: 'mcq',
+    q: 'La texture GRENUE d\'une roche magmatique correspond à…',
+    options: [
+      'Refroidissement lent en profondeur — cristaux jointifs et visibles à l\'œil nu',
+      'Refroidissement rapide en surface — cristaux dans du verre',
+      'Transformation à haute pression',
+      'Dépôt de sédiments en milieu marin',
+    ],
+    answer: 0,
+    explain: 'Texture <strong>grenue</strong> = les cristaux ont eu le temps de croître → roche <strong>plutonique</strong>. Exemples : Granite, Gabbro, Diorite.',
+  },
+  {
+    type: 'mcq',
+    q: 'La texture MICROLITIQUE d\'une roche magmatique correspond à…',
+    options: [
+      'Refroidissement rapide en surface — phénocristaux baignant dans du verre',
+      'Refroidissement lent en profondeur — minéraux jointifs',
+      'Recristallisation métamorphique',
+      'Accumulation de débris organiques',
+    ],
+    answer: 0,
+    explain: 'Texture <strong>microlitique</strong> = vitrification rapide → roche <strong>volcanique</strong>. Les cristaux (microlites) baignent dans une mésostase vitreuse. Exemples : Basalte, Andésite.',
+  },
+  {
+    type: 'mcq',
+    q: 'Une roche avec SiO₂ > 65 % est qualifiée de…',
+    options: [
+      'Acide (ex: granite, rhyolite) — claire (leucocrate)',
+      'Basique (ex: basalte, gabbro) — sombre',
+      'Ultrabasique (ex: péridotite)',
+      'Intermédiaire (ex: diorite, andésite)',
+    ],
+    answer: 0,
+    explain: 'Roches <strong>acides</strong> : SiO₂ > 65 %, riches en Si, Al, Na, K → claires (<strong>leucocrates</strong>, felsiques). Ex: Granite (plutonique), Rhyolite (volcanique).',
+  },
+  {
+    type: 'mcq',
+    q: 'Une roche avec SiO₂ < 52 % est qualifiée de…',
+    options: [
+      'Basique ou ultrabasique — sombre (mélanocrate, mafique)',
+      'Acide — claire (leucocrate)',
+      'Intermédiaire',
+      'Felsique',
+    ],
+    answer: 0,
+    explain: 'Roches <strong>basiques</strong> : SiO₂ < 52 %, riches en Mg et Fe → <strong>mafiques</strong>, sombres (<strong>mélanocrates</strong>). Ex: Basalte (volcanique), Gabbro (plutonique).',
+  },
+  {
+    type: 'mcq',
+    q: 'L\'équivalent volcanique (extrusive) du GABBRO est…',
+    options: ['Le Basalte', 'Le Granite', 'La Rhyolite', 'L\'Andésite'],
+    answer: 0,
+    explain: '<strong>Gabbro</strong> (plutonique) ↔ <strong>Basalte</strong> (volcanique) : même composition chimique basique (mafique), mais textures différentes (grenue vs microlitique).',
+  },
+  {
+    type: 'mcq',
+    q: 'L\'équivalent volcanique du GRANITE est…',
+    options: ['La Rhyolite', 'Le Basalte', 'La Diorite', 'Le Gabbro'],
+    answer: 0,
+    explain: '<strong>Granite</strong> (plutonique) ↔ <strong>Rhyolite</strong> (volcanique) : même composition acide (felsique). La rhyolite est rare car les magmas granitiques, très visqueux, restent souvent en profondeur.',
+  },
+  {
+    type: 'mcq',
+    q: 'Qu\'est-ce qu\'un PHÉNOCRISTAL ?',
+    options: [
+      'Grand cristal formé lentement avant l\'éruption (en profondeur)',
+      'Petit cristal formé lors du refroidissement rapide de la lave',
+      'Partie vitreuse d\'une roche volcanique',
+      'Minéral index du métamorphisme',
+    ],
+    answer: 0,
+    explain: '<strong>Phénocristal</strong> = grand cristal formé en profondeur, avant l\'éruption, lors d\'un refroidissement lent. À l\'opposé, les <strong>microlites</strong> se forment lors du refroidissement rapide en surface.',
+  },
+  {
+    type: 'mcq',
+    q: 'La MÉSOSTASE dans une roche volcanique, c\'est…',
+    options: [
+      'La partie vitreuse ou microcristallisée entre les phénocristaux et microlites',
+      'Les grands cristaux formés avant l\'éruption',
+      'Le minéral dominant du granite',
+      'La structure feuilletée d\'un métamorpgisme',
+    ],
+    answer: 0,
+    explain: 'La <strong>mésostase</strong> (ou pâte) est la partie interstitielle d\'une roche volcanique qui occupe les espaces entre les phénocristaux et les microlites. Elle résulte du refroidissement très rapide.',
+  },
+  {
+    type: 'mcq',
+    q: 'Dans quel contexte géodynamique se forment les magmas MANTELLIQUES ?',
+    options: [
+      'Dorsales océaniques, rifts, points chauds',
+      'Zones de subduction et chaînes de collision',
+      'Épaississement crustal continental',
+      'Bassins sédimentaires marins',
+    ],
+    answer: 0,
+    explain: 'Les <strong>magmas mantelliques</strong> (basaltiques) se forment par fusion partielle du manteau supérieur. Contextes : <strong>dorsales océaniques</strong>, rifts continentaux, points chauds (ex: Hawaï).',
+  },
+  {
+    type: 'mcq',
+    q: 'Dans quel contexte géodynamique se forment les magmas CRUSTAUX ?',
+    options: [
+      'Zones de subduction, chaînes de collision, épaississement crustal',
+      'Dorsales océaniques et rifts',
+      'Points chauds et hot spots',
+      'Bassins sédimentaires profonds',
+    ],
+    answer: 0,
+    explain: 'Les <strong>magmas crustaux</strong> (granitiques) résultent de la fusion partielle de la croûte continentale. Contextes : <strong>subduction</strong> (apport de chaleur et eau), collision, épaississement crustal.',
+  },
+  {
+    type: 'mcq',
+    q: 'La viscosité d\'un magma GRANITIQUE (crustal) est…',
+    options: [
+      'Élevée (riche en SiO₂, difficile à s\'écouler)',
+      'Faible (comme le basalte)',
+      'Nulle (c\'est un verre)',
+      'Variable selon la température uniquement',
+    ],
+    answer: 0,
+    explain: 'Les magmas granitiques, <strong>riches en silice (>65%)</strong>, ont une <strong>viscosité très élevée</strong>. C\'est pourquoi les éruptions rhyolitiques sont explosives (le gaz reste piégé).',
+  },
+  {
+    type: 'image',
+    q: 'Identifie cette roche magmatique intrusive.',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Granite_Yosemite_P1160483.jpg/400px-Granite_Yosemite_P1160483.jpg',
+    options: ['Granite', 'Gabbro', 'Basalte', 'Péridotite'],
+    answer: 0,
+    explain: '<strong>Granite</strong> : roche plutonique (intrusive), texture grenue. On reconnaît les cristaux visibles à l\'œil nu : quartz (gris vitreux), feldspaths (blancs/roses) et micas (paillettes noires = biotite).',
+  },
+  {
+    type: 'image',
+    q: 'Identifie cette roche. Indices : sombre, texture microlitique, volcanique.',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Basalt_from_Canary_Islands_%28Tenerife%29.jpg/400px-Basalt_from_Canary_Islands_%28Tenerife%29.jpg',
+    options: ['Basalte', 'Gabbro', 'Obsidienne', 'Granite'],
+    answer: 0,
+    explain: '<strong>Basalte</strong> : roche volcanique (extrusive) mafique. Texture microlitique, sombre (mélanocrate). Équivalent volcanique du gabbro. Se forme aux dorsales océaniques et points chauds.',
+  },
+  {
+    type: 'image',
+    q: 'Quelle est cette roche noire et vitreuse d\'origine volcanique ?',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/ObsidianOregon.jpg/400px-ObsidianOregon.jpg',
+    options: ['Obsidienne', 'Basalte', 'Ardoise', 'Charbon'],
+    answer: 0,
+    explain: '<strong>Obsidienne</strong> : roche magmatique extrusive composée essentiellement de verre volcanique. Se forme lors d\'un refroidissement extrêmement rapide. Cassure conchoïdale tranchante. Ultra-lisse.',
+  },
+  {
+    type: 'image',
+    q: 'Reconnaître cette roche du manteau : verdâtre, grains d\'olivine visibles.',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Peridotite.jpg/400px-Peridotite.jpg',
+    options: ['Péridotite', 'Serpentinite', 'Gabbro', 'Diorite'],
+    answer: 0,
+    explain: '<strong>Péridotite</strong> : roche ultramafique du manteau. Composée principalement d\'<strong>olivine</strong> (vert) et de pyroxènes. SiO₂ < 45%. C\'est la roche source des magmas mantelliques.',
+  },
+],
+
+// ─── 3. ROCHES MÉTAMORPHIQUES ─────────────────────────────────────
+metamorphique: [
+  {
+    type: 'mcq',
+    q: 'L\'ÉPIZONE correspond à quel degré de métamorphisme ?',
+    options: [
+      'Faible métamorphisme (200–350°C) — proche de la diagenèse',
+      'Métamorphisme moyen (350–600°C)',
+      'Fort métamorphisme (>600°C) — proche de l\'anatexie',
+      'Aucun métamorphisme',
+    ],
+    answer: 0,
+    explain: '<strong>Épizone</strong> = faible métamorphisme, <strong>BT/FP (200–350°C)</strong>. À ce stade, on commence à avoir des minéraux métamorphiques comme la chlorite.',
+  },
+  {
+    type: 'mcq',
+    q: 'La CATAZONE correspond à quel degré de métamorphisme ?',
+    options: [
+      'Fort métamorphisme (>600°C) — proche de l\'anatexie',
+      'Faible métamorphisme (200–350°C)',
+      'Métamorphisme moyen',
+      'Diagenèse avancée',
+    ],
+    answer: 0,
+    explain: '<strong>Catazone</strong> = fort métamorphisme, <strong>HT/HP (>600°C)</strong>. On trouve des gneiss, des granulites. Proche de l\'anatexie.',
+  },
+  {
+    type: 'mcq',
+    q: 'Quel minéral est l\'INDEX du faciès SCHISTE BLEU (HP-BT) ?',
+    options: ['Glaucophane (amphibole bleutée)', 'Hornblende', 'Grenat almandin', 'Sillimanite'],
+    answer: 0,
+    explain: 'Le <strong>schiste bleu</strong> se forme en contexte de <strong>subduction</strong> (HP-BT). Son minéral index est le <strong>glaucophane</strong> (amphibole sodique bleutée), accompagné de lawsonite.',
+  },
+  {
+    type: 'mcq',
+    q: 'Dans quel contexte géodynamique se forment les schistes bleus ?',
+    options: [
+      'Zone de subduction (haute pression, basse température)',
+      'Dorsale océanique (basse pression, haute température)',
+      'Point chaud volcanique',
+      'Chaîne de collision uniquement en surface',
+    ],
+    answer: 0,
+    explain: 'Les <strong>schistes bleus</strong> (faciès HP-BT) se forment dans les zones de <strong>subduction</strong> où la croûte océanique descend rapidement, créant une haute pression sans hausse proportionnelle de T.',
+  },
+  {
+    type: 'mcq',
+    q: 'La SCHISTOSITÉ en pétrologie, c\'est…',
+    options: [
+      'Aplatissement de la roche en feuillets sans tri des minéraux',
+      'Alternance de minéraux clairs et sombres (foliation)',
+      'Étirement et alignement des minéraux dans une direction',
+      'Fusion partielle de la roche',
+    ],
+    answer: 0,
+    explain: 'La <strong>schistosité</strong> = aplatissement sans tri des minéraux → débit en feuillets (schiste, micaschiste). C\'est le premier stade de déformation métamorphique.',
+  },
+  {
+    type: 'mcq',
+    q: 'La FOLIATION (gneiss) est caractérisée par…',
+    options: [
+      'Un aplatissement avec tri et alternance de minéraux clairs et sombres',
+      'Un étirement linéaire des minéraux (linéation)',
+      'Une absence totale d\'organisation des minéraux',
+      'Une fusion partielle avec veines de granit',
+    ],
+    answer: 0,
+    explain: 'La <strong>foliation</strong> = aplatissement + <strong>tri des minéraux</strong> en feuillets alternés clairs/sombres. Caractéristique du <strong>gneiss</strong>, produit d\'un métamorphisme moyen à fort.',
+  },
+  {
+    type: 'mcq',
+    q: 'Quel est le protolithe (roche d\'origine) du MARBRE ?',
+    options: ['Calcaire', 'Grès', 'Basalte', 'Granite'],
+    answer: 0,
+    explain: '<strong>Calcaire → Marbre</strong> (métamorphisme de contact ou régional). C\'est une roche paramétamorphique (dérivant d\'une roche sédimentaire). La calcite se recristallise.',
+  },
+  {
+    type: 'mcq',
+    q: 'Le basalte soumis à un métamorphisme de faible degré (épizone) devient…',
+    options: ['Schiste vert', 'Gneiss', 'Amphibolite', 'Éclogite'],
+    answer: 0,
+    explain: 'Basalte → <strong>Schiste vert</strong> (épizone). Les pyroxènes et plagioclases sont remplacés par chlorite, actinote et albite (minéraux typiques du faciès schiste vert, à basse T).',
+  },
+  {
+    type: 'mcq',
+    q: 'Les minéraux index du faciès AMPHIBOLITE sont…',
+    options: [
+      'Hornblende, Grenat almandin, Biotite, Staurotide',
+      'Glaucophane et Lawsonite',
+      'Sillimanite et Cordiérite',
+      'Grenat pyrope et Omphacite',
+    ],
+    answer: 0,
+    explain: 'Le faciès <strong>amphibolite</strong> (T 500–700°C, P moyenne) est caractérisé par : <strong>Hornblende, Grenat almandin, Biotite, Staurotide, Disthène/Andalousite</strong>.',
+  },
+  {
+    type: 'mcq',
+    q: 'L\'ÉCLOGITE se forme dans quel contexte et quelles conditions ?',
+    options: [
+      'Subduction profonde — Haute pression, T variable (500–800°C)',
+      'Collision continentale — Basse pression, haute T',
+      'Dorsale océanique — Basse pression, basse T',
+      'Diagenèse — Très faible P et T',
+    ],
+    answer: 0,
+    explain: 'L\'<strong>éclogite</strong> est un faciès HP-HT de subduction profonde. Minéraux index : <strong>Grenat + Omphacite</strong> (pyroxène sodique) + Rutile. C\'est l\'une des roches les plus denses de la croûte.',
+  },
+  {
+    type: 'image',
+    q: 'Identifie cette roche métamorphique à foliation (alternance de bandes claires et sombres).',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Gneiss_from_Glenelg.jpg/400px-Gneiss_from_Glenelg.jpg',
+    options: ['Gneiss', 'Schiste', 'Granulite', 'Migmatite'],
+    answer: 0,
+    explain: '<strong>Gneiss</strong> : roche métamorphique à <strong>foliation</strong> bien marquée. On voit l\'alternance de bandes claires (quartz, feldspaths) et sombres (biotite, hornblende). Mésozone ou catazone.',
+  },
+  {
+    type: 'image',
+    q: 'Cette roche métamorphique présente une schistosité (débit en feuillets). Laquelle est-ce ?',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Schist_detail.jpg/400px-Schist_detail.jpg',
+    options: ['Schiste (micaschiste)', 'Gneiss', 'Ardoise', 'Quartzite'],
+    answer: 0,
+    explain: '<strong>Schiste / Micaschiste</strong> : roche métamorphique à schistosité marquée par l\'abondance de <strong>micas</strong> (paillettes brillantes). Se forme à partir de pélites ou marnes en mésozone.',
+  },
+],
+
+// ─── 4. ROCHES SÉDIMENTAIRES ─────────────────────────────────────
+sedimentaire: [
+  {
+    type: 'mcq',
+    q: 'L\'ALTÉRATION est un processus principalement…',
+    options: [
+      'Chimique — elle décompose la roche en ions solubles et minéraux',
+      'Mécanique — elle fragmente physiquement la roche',
+      'Biologique — uniquement due aux organismes vivants',
+      'Thermique — uniquement due aux variations de température',
+    ],
+    answer: 0,
+    explain: 'L\'<strong>altération</strong> est principalement <strong>chimique</strong> (ex: hydrolyse). Elle déstabilise les minéraux et les met en solution. L\'eau est l\'agent principal de l\'altération chimique.',
+  },
+  {
+    type: 'mcq',
+    q: 'L\'ÉROSION est un processus principalement…',
+    options: [
+      'Mécanique/physique — elle arrache et évacue les produits d\'altération',
+      'Chimique — elle dissout les minéraux',
+      'Biologique — causée uniquement par les racines',
+      'Thermodynamique',
+    ],
+    answer: 0,
+    explain: 'L\'<strong>érosion</strong> est principalement <strong>mécanique/physique</strong>. Agents : vent, eau, glace, gravité. Elle mobilise les produits de l\'altération et façonne le relief.',
+  },
+  {
+    type: 'mcq',
+    q: 'La granulométrie des ARGILES est de…',
+    options: ['< 4 µm', '4 à 63 µm', '63 µm à 2 mm', '> 2 mm'],
+    answer: 0,
+    explain: 'Repères granulométriques : <strong>Argiles < 4 µm</strong> | Silts 4–63 µm | Sables 63 µm–2 mm | Graviers/galets > 2 mm. Les argiles sont transportées très loin car très légères.',
+  },
+  {
+    type: 'mcq',
+    q: 'La granulométrie des SABLES est de…',
+    options: ['63 µm à 2 mm', '< 4 µm', '4 à 63 µm', '> 2 mm'],
+    answer: 0,
+    explain: 'Les <strong>sables</strong> ont une taille de grains de <strong>63 µm à 2 mm</strong>. Ils sont transportés par saltation (sauts successifs) dans les rivières ou par le vent.',
+  },
+  {
+    type: 'mcq',
+    q: 'Le diagramme de HJULSTRÖM représente…',
+    options: [
+      'La relation entre la vitesse du courant et la taille des particules érodées/transportées/déposées',
+      'La relation entre pression et température dans le métamorphisme',
+      'La séquence de précipitation des évaporites',
+      'La classification granulométrique des sédiments',
+    ],
+    answer: 0,
+    explain: 'Le <strong>diagramme de Hjulström</strong> montre que : plus la vitesse est forte → plus les particules transportées peuvent être grossières. Il délimite les zones d\'érosion, de transport et de dépôt.',
+  },
+  {
+    type: 'mcq',
+    q: 'La DIAGENÈSE comprend quels processus principaux ?',
+    options: [
+      'Compaction, pression-dissolution, cimentation, recristallisation',
+      'Érosion, transport, sédimentation',
+      'Fusion partielle, cristallisation, vitrification',
+      'Altération chimique, altération mécanique',
+    ],
+    answer: 0,
+    explain: 'Les 4 processus de la <strong>diagenèse</strong> : <strong>Compaction</strong> (grains interpénétrés), <strong>pression-dissolution</strong>, <strong>cimentation</strong> (remplissage des pores) et <strong>recristallisation</strong>.',
+  },
+  {
+    type: 'mcq',
+    q: 'Qu\'est-ce qu\'une ARKOSE ?',
+    options: [
+      'Un grès contenant > 15 % de feldspath — indicateur de transport court',
+      'Un calcaire riche en fragments de coraux',
+      'Un conglomérat à galets arrondis',
+      'Une roche évaporitique (chlorure de sodium)',
+    ],
+    answer: 0,
+    explain: 'L\'<strong>arkose</strong> est un grès avec <strong>> 15% de feldspath</strong>. Les feldspaths s\'altèrent rapidement → leur présence indique un transport court depuis une source granitique.',
+  },
+  {
+    type: 'mcq',
+    q: 'Les roches BIOCHIMIQUES se forment par…',
+    options: [
+      'Accumulation de restes organiques ou de tests d\'organismes vivants',
+      'Précipitation directe de minéraux par évaporation',
+      'Fragmentation mécanique de roches préexistantes',
+      'Altération intense des roches mères',
+    ],
+    answer: 0,
+    explain: 'Les <strong>roches biochimiques</strong> résultent de l\'accumulation de tests (squelettes rigides calcaires ou siliceux) d\'organismes : coccolithes, foraminifères, radiolaires, coraux...',
+  },
+  {
+    type: 'mcq',
+    q: 'La HALITE est une roche chimique constituée de…',
+    options: [
+      'Chlorure de sodium (NaCl) — sel gemme',
+      'Sulfate de calcium (CaSO₄) — gypse',
+      'Carbonate de calcium (CaCO₃) — calcaire',
+      'Dioxyde de silicium (SiO₂) — silex',
+    ],
+    answer: 0,
+    explain: 'La <strong>halite</strong> = <strong>chlorure de sodium (NaCl)</strong>. Roche évaporitique chimique. Elle précipite lors de l\'évaporation à ~90% d\'une eau de mer (3,5% de salinité).',
+  },
+  {
+    type: 'mcq',
+    q: 'Le principe de l\'horizontalité initiale de STÉNON stipule que…',
+    options: [
+      'Les sédiments s\'accumulent en couches horizontales d\'épaisseur relativement constante',
+      'Les couches les plus récentes sont toujours en bas',
+      'Chaque couche sédimentaire est d\'origine volcanique',
+      'Les fossiles datent la roche par leur composition chimique',
+    ],
+    answer: 0,
+    explain: 'Principe de <strong>Sténon</strong> : les sédiments se déposent parallèlement à la surface de l\'eau → couches <strong>horizontales</strong>. Si elles sont inclinées aujourd\'hui, c\'est dû à une déformation tectonique ultérieure.',
+  },
+  {
+    type: 'tf',
+    q: 'En climat humide et chaud, l\'altération CHIMIQUE domine sur l\'altération mécanique.',
+    answer: 0,
+    explain: '<strong>VRAI.</strong> En climat humide et chaud : <strong>altération chimique dominante</strong> (formation d\'argiles, latérites). En climat froid ou aride : désagrégation mécanique prédomine (gel, vent).',
+  },
+  {
+    type: 'mcq',
+    q: 'Un delta en "patte d\'oiseau" correspond à quel type de delta ?',
+    options: [
+      'Delta fluviatile (ex: Mississippi) — dominé par les apports fluviatiles',
+      'Delta marin (ex: Rhône) — dominé par la houle',
+      'Delta de marée (ex: Gange) — réseau de chenaux multiples',
+      'Delta lacustre — en milieu fermé',
+    ],
+    answer: 0,
+    explain: 'Le delta en <strong>patte d\'oiseau</strong> (ex: Mississippi) est un <strong>delta fluviatile</strong>, dominé par les apports sédimentaires. La houle et les marées ont peu d\'influence.',
+  },
+  {
+    type: 'mcq',
+    q: 'Dans la séquence de précipitation d\'une eau de mer, quels minéraux précipitent en PREMIER (à 50% d\'évaporation) ?',
+    options: [
+      'Calcite et Aragonite (CaCO₃)',
+      'Gypse et Anhydrite (CaSO₄)',
+      'Halite — sel gemme (NaCl)',
+      'Sylvite (KCl)',
+    ],
+    answer: 0,
+    explain: 'Séquence (eau de mer 3,5%) : <strong>50%</strong> → Calcite/Aragonite | 65% → Gypse/Anhydrite | 90% → Halite | ~99% → Sylvite + Borates. Les carbonates précipitent en premier.',
+  },
+  {
+    type: 'image',
+    q: 'Identifie cette roche sédimentaire détritique à grains de quartz visibles.',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Colorful_Sandstone.jpg/400px-Colorful_Sandstone.jpg',
+    options: ['Grès', 'Arkose', 'Conglomérat', 'Calcaire'],
+    answer: 0,
+    explain: '<strong>Grès</strong> : roche sédimentaire détritique arénite (63 µm–2 mm), essentiellement constituée de quartz cimentés. Dépôt fluviatile, deltaïque ou éolien. La couleur peut varier (fer, oxydes).',
+  },
+  {
+    type: 'image',
+    q: 'Cette roche sédimentaire grise présente des fossiles de coquillages. Identifie-la.',
+    img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Limestone_with_fossils%2C_Germany.jpg/400px-Limestone_with_fossils%2C_Germany.jpg',
+    options: ['Calcaire à coquilliers (bioclastique)', 'Grès', 'Marbre', 'Gypse'],
+    answer: 0,
+    explain: '<strong>Calcaire bioclastique</strong> : roche sédimentaire formée par accumulation de fragments de coquilles et organismes calcaires (CaCO₃). Roche très fréquente, souvent fossilifère.',
+  },
+],
+
+// ─── 5. COUCHES TERRESTRES ───────────────────────────────────────
+couches: [
+  {
+    type: 'mcq',
+    q: 'Quelle est l\'épaisseur moyenne de la CROÛTE CONTINENTALE ?',
+    options: ['30 km (30–65 km en montagne)', '10 km', '70 km', '700 km'],
+    answer: 0,
+    explain: 'La <strong>croûte continentale</strong> (CC) fait en moyenne <strong>30 km</strong>, mais peut atteindre 65 km sous les chaînes de montagnes (racine crustale). Sa composition est felsique (SIAL).',
+  },
+  {
+    type: 'mcq',
+    q: 'Quelle est l\'épaisseur moyenne de la CROÛTE OCÉANIQUE ?',
+    options: ['10 km (5–15 km)', '30 km', '70 km', '2300 km'],
+    answer: 0,
+    explain: 'La <strong>croûte océanique</strong> (CO) fait <strong>10 km</strong> en moyenne (5–15 km). Elle est plus mince mais plus dense que la croûte continentale. Composition mafique (SIMA).',
+  },
+  {
+    type: 'mcq',
+    q: 'La roche principale de la CROÛTE CONTINENTALE est…',
+    options: [
+      'Granite (felsique — riche en Si et Al)',
+      'Basalte (mafique — riche en Fe et Mg)',
+      'Péridotite (ultramafique)',
+      'Calcaire (sédimentaire)',
+    ],
+    answer: 0,
+    explain: 'La <strong>croûte continentale</strong> est de composition <strong>felsique</strong> (SIAL : Si + Al). Roche représentative : <strong>Granite</strong> en profondeur, Gneiss. Densité d = 2,7–3.',
+  },
+  {
+    type: 'mcq',
+    q: 'La roche principale de la CROÛTE OCÉANIQUE est…',
+    options: [
+      'Basalte (volcanique, surface) et Gabbro (profondeur) — mafiques',
+      'Granite (felsique)',
+      'Péridotite (ultramafique)',
+      'Schiste (métamorphique)',
+    ],
+    answer: 0,
+    explain: 'La <strong>croûte océanique</strong> est <strong>mafique</strong> (SIMA : Si + Mg) : <strong>Basalte</strong> en surface (texture microlitique) et <strong>Gabbro</strong> en profondeur (texture grenue). Densité d = 3,2–3,3.',
+  },
+  {
+    type: 'mcq',
+    q: 'La roche principale du MANTEAU terrestre est…',
+    options: [
+      'Péridotite (ultramafique : olivine + pyroxènes)',
+      'Granite',
+      'Gabbro',
+      'Éclogite',
+    ],
+    answer: 0,
+    explain: 'Le <strong>manteau</strong> est composé de <strong>péridotite</strong> (ultramafique : SiO₂ < 45%). Composition : olivine majoritaire + pyroxènes. Le minéral alumineux varie avec la profondeur (plagioclase → spinelle → grenat).',
+  },
+  {
+    type: 'mcq',
+    q: 'Quel est l\'état du NOYAU EXTERNE terrestre ?',
+    options: [
+      'Liquide (Fer + Nickel) — génère le champ magnétique',
+      'Solide (Fer + Nickel)',
+      'Visqueux (roches en fusion)',
+      'Gazeux',
+    ],
+    answer: 0,
+    explain: 'Le <strong>noyau externe</strong> est <strong>liquide</strong> (Fe + Ni), à ~3700°C. Les mouvements de convection du métal liquide génèrent le <strong>champ magnétique terrestre</strong>. Le noyau interne, lui, est solide.',
+  },
+  {
+    type: 'mcq',
+    q: 'La discontinuité de MOHOROVIČIĆ (Moho) sépare…',
+    options: [
+      'La croûte terrestre et le manteau supérieur',
+      'Le manteau supérieur et le manteau inférieur',
+      'Le manteau et le noyau externe',
+      'Le noyau externe et le noyau interne',
+    ],
+    answer: 0,
+    explain: 'La <strong>discontinuité de Moho</strong> marque le passage de la <strong>croûte terrestre au manteau supérieur</strong>. À ~30 km sous les continents, ~10 km sous les océans. Changement de vitesse des ondes sismiques.',
+  },
+  {
+    type: 'mcq',
+    q: 'Quelle discontinuité sépare le MANTEAU du NOYAU (à 2885 km de profondeur) ?',
+    options: [
+      'Discontinuité de Gutenberg',
+      'Discontinuité de Moho',
+      'Discontinuité de Lehmann',
+      'Discontinuité d\'Conrad',
+    ],
+    answer: 0,
+    explain: 'La <strong>discontinuité de Gutenberg</strong> (à 2885 km) sépare le manteau inférieur du noyau externe. La <strong>discontinuité de Lehmann</strong> (à 5155 km) sépare noyau externe (liquide) et noyau interne (solide).',
+  },
+],
+
+// ─── 6. MINÉRAUX & ANALYSE ───────────────────────────────────────
+mineraux: [
+  {
+    type: 'mcq',
+    q: 'En LPNA (Lumière Polarisée Non Analysée), qu\'observe-t-on ?',
+    options: [
+      'La couleur naturelle, la forme, le relief et le pléochroïsme du minéral',
+      'L\'extinction, les couleurs d\'interférence et les macles',
+      'La biréfringence et l\'angle d\'extinction',
+      'La composition chimique exacte du minéral',
+    ],
+    answer: 0,
+    explain: 'En <strong>LPNA</strong> (analyseur tiré = lumière naturelle) : on observe la <strong>couleur naturelle, la forme, le relief</strong> et le <strong>pléochroïsme</strong> (changement de couleur à la rotation de la platine).',
+  },
+  {
+    type: 'mcq',
+    q: 'En LPA (Lumière Polarisée Analysée), qu\'observe-t-on ?',
+    options: [
+      'Les teintes de polarisation (biréfringence), l\'extinction et les macles',
+      'La couleur naturelle et le relief du minéral',
+      'La taille exacte des cristaux',
+      'La réfraction de la lumière naturelle',
+    ],
+    answer: 0,
+    explain: 'En <strong>LPA</strong> (analyseur poussé = polariseurs croisés à 90°) : le champ devient noir. On observe les <strong>teintes de polarisation</strong> (biréfringence), l\'<strong>extinction</strong> et les <strong>macles</strong>.',
+  },
+  {
+    type: 'mcq',
+    q: 'Le PLÉOCHROÏSME d\'un minéral, c\'est…',
+    options: [
+      'Le changement de couleur du minéral quand on tourne la platine (ex: Biotite)',
+      'La présence de plusieurs couleurs simultanément dans le cristal',
+      'L\'extinction du minéral à différents angles',
+      'Les macles polysynthétiques des plagioclases',
+    ],
+    answer: 0,
+    explain: 'Le <strong>pléochroïsme</strong> = changement de couleur visible en LPNA quand on tourne la platine. Très marqué chez la <strong>Biotite</strong> (mica noir) et les amphiboles. Dû à l\'absorption différentielle de la lumière.',
+  },
+  {
+    type: 'mcq',
+    q: 'Le QUARTZ en LPNA (lumière naturelle) apparaît…',
+    options: [
+      'Gris vitreux/translucide — sans forme propre (xénomorphe)',
+      'Blanc laiteux opaque comme de la porcelaine',
+      'Vert olive brillant',
+      'Rose saumon rectangulaire',
+    ],
+    answer: 0,
+    explain: 'Le <strong>Quartz</strong> est <strong>gris vitreux/translucide</strong> (comme du gros sel), toujours <strong>xénomorphe</strong> (sans forme géométrique propre car il cristallise en dernier). Il raye le verre et ne présente pas de clivage.',
+  },
+  {
+    type: 'mcq',
+    q: 'Les FELDSPATHS POTASSIQUES (orthose) se reconnaissent à leur couleur…',
+    options: [
+      'Rose, saumon ou chair — souvent en gros cristaux rectangulaires',
+      'Blanc laiteux opaque',
+      'Gris vitreux translucide',
+      'Noir brillant en paillettes',
+    ],
+    answer: 0,
+    explain: 'Le <strong>feldspath potassique</strong> (orthose) est de couleur <strong>rose, saumon ou chair</strong>. Les <strong>plagioclases</strong> (Na-Ca), eux, sont blancs laiteux/opaques. Tous les deux ont un habitus planaire et des macles.',
+  },
+  {
+    type: 'mcq',
+    q: 'Comment reconnaître l\'OLIVINE à l\'œil nu ?',
+    options: [
+      'Couleur vert olive/vert bouteille dans une roche sombre',
+      'Paillettes argentées brillantes se détachant en feuillets',
+      'Grains noirs mats à section carrée',
+      'Couleur blanche opaque rectangulaire',
+    ],
+    answer: 0,
+    explain: '<strong>Olivine</strong> : couleur <strong>vert olive à vert bouteille</strong>, éclat vitreux. Si tu vois du vert dans un basalte ou une péridotite sombre, c\'est de l\'olivine à 99%. Elle s\'altère fréquemment (brunissement).',
+  },
+  {
+    type: 'mcq',
+    q: 'Les MACLES POLYSYNTHÉTIQUES en LPA sont caractéristiques de…',
+    options: [
+      'Les plagioclases (feldspaths Na-Ca) — rayures parallèles typiques',
+      'Le quartz — extinction roulante',
+      'La biotite — effet moirage',
+      'L\'olivine — fractures croisées',
+    ],
+    answer: 0,
+    explain: 'Les <strong>macles polysynthétiques</strong> (rayures parallèles alternantes en LPA) sont la signature des <strong>plagioclases</strong>. C\'est le critère de distinction principal entre plagioclase et feldspath potassique.',
+  },
+  {
+    type: 'mcq',
+    q: 'Comment distinguer le QUARTZ du FELDSPATH à l\'œil nu ?',
+    options: [
+      'Quartz = transparent/gris ; Feldspath = opaque/blanc (ou rose)',
+      'Quartz = rose ; Feldspath = gris vitreux',
+      'Quartz = noir brillant ; Feldspath = vert',
+      'Impossible à distinguer sans microscope',
+    ],
+    answer: 0,
+    explain: 'Règle mnémotechnique : <strong>Quartz = transparent/gris (vitreux)</strong> — <strong>Feldspath = opaque/blanc (porcelaine) ou rose</strong>. Le quartz est aussi xénomorphe (sans forme propre) contrairement aux feldspaths.',
+  },
+  {
+    type: 'mcq',
+    q: 'Les roches sédimentaires représentent quelle proportion de la SURFACE ÉMERGÉE ?',
+    options: ['~75%', '~10%', '~50%', '~90%'],
+    answer: 0,
+    explain: 'Les <strong>roches sédimentaires</strong> recouvrent <strong>~75% de la surface émergée</strong>, mais ne représentent que ~10% de la croûte terrestre en volume (car peu épaisses). Elles contiennent les fossiles.',
+  },
+  {
+    type: 'mcq',
+    q: 'Une roche LEUCOCRATE est…',
+    options: [
+      'Une roche claire (< 35% de minéraux sombres) — ex: Granite',
+      'Une roche sombre (> 65% de minéraux sombres) — ex: Basalte',
+      'Une roche intermédiaire — ex: Diorite',
+      'Une roche ultramafique — ex: Péridotite',
+    ],
+    answer: 0,
+    explain: 'L\'indice de coloration : <strong>Leucocrate</strong> = clair (granite) | <strong>Mésocrate</strong> = intermédiaire (diorite, "sel et poivre") | <strong>Mélanocrate</strong> = sombre (basalte/gabbro) | <strong>Ultramafique</strong> = très sombre (péridotite).',
+  },
+  {
+    type: 'mcq',
+    q: 'La classification STRECKEISEN des roches magmatiques est basée sur…',
+    options: [
+      'Le pourcentage modal de minéraux (quartz, feldspaths, mafiques) — quantitatif',
+      'La couleur et l\'aspect macroscopique de la roche — qualitatif',
+      'La teneur en SiO₂ uniquement',
+      'Le contexte géodynamique de formation',
+    ],
+    answer: 0,
+    explain: 'La classification de <strong>Streckeisen</strong> (QAPF) est <strong>quantitative</strong> : elle utilise le % de Quartz, Feldspaths Alcalins, Plagioclases et Feldspathoïdes. La classification de <strong>Lacroix</strong> est qualitative.',
+  },
+  {
+    type: 'mcq',
+    q: 'L\'épaisseur d\'une lame mince pour l\'observation microscopique est de…',
+    options: ['30 µm', '1 mm', '0,1 mm', '1 cm'],
+    answer: 0,
+    explain: 'Une <strong>lame mince</strong> est une coupe de roche d\'exactement <strong>30 µm d\'épaisseur</strong>, collée sur une lame de verre. Cette épaisseur permet aux minéraux d\'être transparents à la lumière polarisée.',
+  },
+],
+
+}; // end QUESTIONS
+
+// ══════════════════════════════════════════════════════
+//  APP STATE
+// ══════════════════════════════════════════════════════
+
+let state = {
+  mode: null,        // category id or 'all'
+  questions: [],     // shuffled question list (with category info)
+  currentIndex: 0,
+  score: 0,
+  answered: false,
+  sessionStats: {},  // per-category correct/total
+};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ── START QUIZ ────────────────────────────────────────
+function startQuiz(mode) {
+  state.mode = mode;
+  state.currentIndex = 0;
+  state.score = 0;
+  state.answered = false;
+  state.sessionStats = {};
+
+  let pool = [];
+  if (mode === 'all') {
+    Object.entries(QUESTIONS).forEach(([cat, qs]) => {
+      qs.forEach(q => pool.push({ ...q, category: cat }));
+    });
+  } else {
+    pool = (QUESTIONS[mode] || []).map(q => ({ ...q, category: mode }));
+  }
+
+  state.questions = shuffle(pool);
+
+  // Init stats
+  Object.keys(CATEGORIES).forEach(c => {
+    state.sessionStats[c] = { correct: 0, total: 0 };
+  });
+
+  showScreen('quiz');
+  renderQuestion();
+}
+
+// ── RENDER QUESTION ───────────────────────────────────
+function renderQuestion() {
+  const q = state.questions[state.currentIndex];
+  const total = state.questions.length;
+  const idx = state.currentIndex;
+
+  // Header
+  document.getElementById('progress-label').textContent = `Question ${idx + 1}/${total}`;
+  document.getElementById('cat-label').textContent = CATEGORIES[q.category]?.name || '';
+  document.getElementById('score-badge').textContent = `✓ ${state.score}`;
+
+  const pct = (idx / total) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Type tag
+  const typeLabels = { mcq: 'QCM', tf: 'Vrai / Faux', image: '🖼 Identification' };
+  document.getElementById('q-type-tag').textContent = typeLabels[q.type] || 'QCM';
+  document.getElementById('q-num').textContent = `#${idx + 1}`;
+
+  // Image
+  const imgEl = document.getElementById('q-image');
+  if (q.img) {
+    imgEl.src = q.img;
+    imgEl.classList.remove('hidden');
+    imgEl.onerror = function() { this.classList.add('hidden'); };
+  } else {
+    imgEl.classList.add('hidden');
+    imgEl.src = '';
+  }
+
+  // Question
+  document.getElementById('question-text').textContent = q.q;
+
+  // Options
+  const grid = document.getElementById('options-grid');
+  grid.innerHTML = '';
+  grid.className = 'options-grid';
+
+  if (q.type === 'tf') {
+    grid.classList.add('tf-grid');
+    const tfOptions = ['✓ Vrai', '✗ Faux'];
+    tfOptions.forEach((label, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn tf-btn';
+      btn.innerHTML = `<span class="tf-label">${i === 0 ? '✓' : '✗'}</span>${i === 0 ? 'Vrai' : 'Faux'}`;
+      btn.onclick = () => handleAnswer(i, btn, q);
+      grid.appendChild(btn);
+    });
+  } else {
+    const letters = ['A', 'B', 'C', 'D'];
+    const opts = q.options || [];
+    opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="option-letter">${letters[i]}</span>${opt}`;
+      btn.onclick = () => handleAnswer(i, btn, q);
+      grid.appendChild(btn);
+    });
+  }
+
+  // Reset feedback
+  const fb = document.getElementById('feedback-box');
+  fb.classList.remove('show');
+  const nb = document.getElementById('next-btn');
+  nb.classList.remove('show');
+  nb.textContent = state.currentIndex + 1 < state.questions.length ? 'Continuer →' : 'Voir les résultats 🏁';
+
+  state.answered = false;
+}
+
+// ── HANDLE ANSWER ─────────────────────────────────────
+function handleAnswer(selectedIndex, clickedBtn, q) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const correct = q.answer;
+  const isCorrect = selectedIndex === correct;
+
+  // Disable all buttons
+  const allBtns = document.querySelectorAll('.option-btn');
+  allBtns.forEach((btn, i) => {
+    btn.disabled = true;
+    if (q.type === 'tf') {
+      if (i === correct) btn.classList.add('correct');
+      else if (i === selectedIndex && !isCorrect) btn.classList.add('wrong');
+    } else {
+      if (i === correct) btn.classList.add('correct');
+      else if (i === selectedIndex && !isCorrect) btn.classList.add('wrong');
+    }
+  });
+
+  // Score
+  if (isCorrect) {
+    state.score++;
+    state.sessionStats[q.category].correct++;
+  }
+  state.sessionStats[q.category].total++;
+
+  // Feedback
+  const fb = document.getElementById('feedback-box');
+  const title = document.getElementById('feedback-title');
+  const text = document.getElementById('feedback-text');
+
+  fb.classList.add('show');
+  if (isCorrect) {
+    title.className = 'feedback-title success';
+    title.textContent = '✓ Bonne réponse !';
+  } else {
+    title.className = 'feedback-title fail';
+    const correctLabel = q.type === 'tf' ? (correct === 0 ? 'Vrai' : 'Faux') : (q.options[correct]);
+    title.textContent = `✗ Mauvaise réponse — Réponse : ${correctLabel}`;
+  }
+  text.innerHTML = q.explain;
+
+  document.getElementById('next-btn').classList.add('show');
+  document.getElementById('score-badge').textContent = `✓ ${state.score}`;
+}
+
+// ── NEXT QUESTION ─────────────────────────────────────
+function nextQuestion() {
+  state.currentIndex++;
+  if (state.currentIndex >= state.questions.length) {
+    showResults();
+  } else {
+    renderQuestion();
+    // Scroll to top on mobile
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+}
+
+// ── SHOW RESULTS ──────────────────────────────────────
+function showResults() {
+  showScreen('results');
+
+  const total = state.questions.length;
+  const score = state.score;
+  const pct = Math.round((score / total) * 100);
+
+  // Emoji & title
+  let emoji, title, msg;
+  if (pct >= 90) { emoji = '🏆'; title = 'Exceptionnel !'; msg = 'Tu maîtrises la pétrologie comme un géologue chevronné.'; }
+  else if (pct >= 75) { emoji = '🌟'; title = 'Très bien !'; msg = 'Encore quelques révisions et tu seras prêt(e) !'; }
+  else if (pct >= 60) { emoji = '👍'; title = 'Pas mal !'; msg = 'Relance les catégories les moins maîtrisées.'; }
+  else if (pct >= 40) { emoji = '📚'; title = 'À retravailler'; msg = 'Revois le cours et recommence — tu vas progresser !'; }
+  else { emoji = '💪'; title = 'Continue !'; msg = 'La géologie, ça s\'apprend ! Reviens demain après ta relecture.'; }
+
+  document.getElementById('results-emoji').textContent = emoji;
+  document.getElementById('results-title').textContent = title;
+  document.getElementById('results-score').textContent = `${score}/${total}`;
+  document.getElementById('results-pct').textContent = `${pct}% de bonnes réponses`;
+  document.getElementById('results-msg').textContent = msg;
+
+  // Animate score bar
+  setTimeout(() => {
+    document.getElementById('score-bar-fill').style.width = pct + '%';
+    const color = pct >= 75 ? '#C9A84C' : pct >= 50 ? '#8A7A3A' : '#7A4A2A';
+    document.getElementById('score-bar-fill').style.background = `linear-gradient(90deg, ${color}, ${color}AA)`;
+  }, 100);
+
+  // Breakdown
+  const list = document.getElementById('breakdown-list');
+  list.innerHTML = '';
+
+  const catsToShow = state.mode === 'all'
+    ? Object.keys(CATEGORIES)
+    : [state.mode];
+
+  catsToShow.forEach(cat => {
+    const stats = state.sessionStats[cat];
+    if (!stats || stats.total === 0) return;
+    const catPct = Math.round((stats.correct / stats.total) * 100);
+    const c = CATEGORIES[cat];
+    const item = document.createElement('div');
+    item.className = 'breakdown-item';
+    item.innerHTML = `
+      <div class="breakdown-icon">${c.icon}</div>
+      <div class="breakdown-info">
+        <div class="name">${c.name}</div>
+        <div class="detail">${stats.correct}/${stats.total} bonnes réponses</div>
+      </div>
+      <div class="breakdown-pct">${catPct}%</div>
+    `;
+    list.appendChild(item);
+  });
+}
+
+// ── REPLAY ────────────────────────────────────────────
+function replayQuiz() {
+  startQuiz(state.mode);
+}
+
+// ── NAVIGATION ────────────────────────────────────────
+function goHome() {
+  showScreen('home');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+}
+
+// ── INIT ──────────────────────────────────────────────
+showScreen('home');
+</script>
+</body>
+</html>
